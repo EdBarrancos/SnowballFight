@@ -4,7 +4,7 @@ A Discord bot for personal snowball fights
 
 ## Goals
 
-- [ ] Get the bot up and running
+- [x] Get the bot up and running
 - [ ] Leaderboard of players
 - [ ] Throw snowball to other players
 - [ ] Collect snowballs

@@ -20,6 +20,8 @@ class MyBot(commands.Bot):
 
         print("Initializing Handlers")
 
+        self.cogHandler = CogHandler(self)
+
         print("Handlers Initialized")
 
         print('-------')
@@ -37,3 +39,18 @@ class MyBot(commands.Bot):
             logging.info(f'Message received {message.content}')
             await message.channel.send(message.content)
             return await super().on_message(message)
+
+
+class Handler():
+    def __init__(self, owner) -> None:
+        self.owner = owner
+
+class CogHandler(Handler):
+    def __init__(self, owner) -> None:
+        super().__init__(owner)
+    
+    async def addCogs(self):
+        pass
+
+    async def addCog(self, cog : commands.Cog):
+        self.owner.super().add_cog(cog)
