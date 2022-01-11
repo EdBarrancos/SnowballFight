@@ -4,13 +4,15 @@ import discord
 from discord.ext import commands
 import logging
 
+#Local Imports
+from database.database import DatabaseProfile 
+
 
 class MyBot(commands.Bot):
     def __init__(self, *args, **kwargs):
         logging.info("Intializing Bot...")
         super().__init__(*args, **kwargs)
         logging.info("Bot Initialized Successfully")
-        self.default_timer = 60
 
 
     async def on_ready(self):
@@ -33,6 +35,7 @@ class MyBot(commands.Bot):
 
     async def on_guild_remove(self, guild):
         logging.info(f'Guild {guild.name} left')
+
     
     async def on_message(self, message):
         if message.author != self.user:
@@ -45,6 +48,7 @@ class Handler():
     def __init__(self, owner) -> None:
         self.owner = owner
 
+
 class CogHandler(Handler):
     def __init__(self, owner) -> None:
         super().__init__(owner)
@@ -54,3 +58,8 @@ class CogHandler(Handler):
 
     async def addCog(self, cog : commands.Cog):
         self.owner.super().add_cog(cog)
+
+class DatabaseHandler(Handler):
+    def __init__(self, owner) -> None:
+        super().__init__(owner)
+        self.proDatabase = DatabaseProfile(self)
