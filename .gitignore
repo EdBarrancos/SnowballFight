@@ -1,5 +1,6 @@
 #Specific
 src/database/databases/testing/*
+.vscode/*
 
 
 
