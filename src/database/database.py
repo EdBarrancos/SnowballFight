@@ -22,12 +22,14 @@ class Database:
             self._load()
         else:
             self.db = dict()
+        logging.debug("\tDatase Loaded")
         return True
 
     def _load(self):
         self.db = json.load(open(self.location , "r"))
 
     def dumpdb(self):
+        logging.debug("Dumping into database")
         try:
             json.dump(self.db , open(self.location, "w+"), indent=4)
             return True
@@ -35,6 +37,7 @@ class Database:
             raise Exception("Error dumping data into database")
     
     def add_entry(self, dct : dict):
+        logging.debug("Adding Entry")
         try:
             for key in dct.keys():
                 self.db[key] = dct[key]
@@ -92,10 +95,12 @@ class Database:
         return int(ids[len(ids) - 1]) + 1
 
     def destroy(self):
+        logging.debug("Destroying database")
         self.clear()
         os.remove(self.location)
 
     def clear(self):
+        logging.debug("Clearing Database")
         self.db = dict()
         self.dumpdb()
 
