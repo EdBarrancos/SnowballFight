@@ -1,3 +1,4 @@
+from distutils import command
 import random
 import asyncio
 import json
@@ -46,11 +47,27 @@ class Database:
     def get_instance(self, id) -> list:
         return self.db[id]
 
-    def get_collumn(self, key):
-        pass
+    def get_collumn(self, key) -> list:
+        if len(self.get_ids()) == 0:
+            raise Exception("Empty Database")
+        if key not in self.db[self.get_ids()[0]].keys():
+            raise Exception("Key does not exist in database")
+        try:
+            collumn = list()
+            for id in self.get_ids():
+                collumn.append(self.db[id][key])
+        except Exception as e:
+            raise e
+        return collumn
 
-    def get_keys(self):
-        pass
+    def get_keys(self) -> list:
+        if len(self.get_ids()) == 0:
+            raise Exception("Empty Database")
+        try:
+            return self.db[self.get_ids()[0]].keys()
+        except Exception as e:
+            raise e
+            
 
     def entry_exists(self, entry: dict) -> bool:
         try:
