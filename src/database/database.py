@@ -22,7 +22,7 @@ class Database:
         if os.path.exists(location):
             self._load()
         else:
-            self.db = {}
+            self.db = dict()
         return True
 
     def _load(self):
@@ -70,9 +70,19 @@ class Database:
             return 0
         return int(ids[len(ids) - 1]) + 1
 
+    def destroy(self):
+        #Delete file
+        pass
+
+    def clear(self):
+        self.db = dict()
+        self.dumpdb()
+        #Erase file info and self.db
+        pass
+
     #Common stuff
 
-class ItemsDatabase(Database):
+class ItemsDB(Database):
     def __init__(self, handler, file) -> None:
         super().__init__(handler, file)
     
