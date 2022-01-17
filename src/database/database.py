@@ -6,8 +6,6 @@ import os
 # Third Party Imports
 import logging
 
-from discord import guild
-
 
 class Database:
     def __init__(self, handler, file) -> None:
@@ -45,25 +43,31 @@ class Database:
             logging.error("Error adding entry to database")
             raise e
 
-    def get_collumn(self, key) -> list:
-        return self.db[key]
+    def get_instance(self, id) -> list:
+        return self.db[id]
+
+    def get_collumn(self, key):
+        pass
+
+    def get_keys(self):
+        pass
 
     def entry_exists(self, entry: dict) -> bool:
-        #Too specific?
         try:
-            ids = self.get_keys()
+            ids = self.get_ids()
             for id in ids:
-                if self.get_collumn(id) == entry:
+                if self.get_instance(id) == entry:
                     return True
         except:
             return False
+        return False
     
-    def get_keys(self) -> list:
+    def get_ids(self) -> list:
         return list(self.db.keys())
 
     def get_next_id(self):
         try:
-            ids = self.get_keys()
+            ids = self.get_ids()
         except Exception as _:
             return 0
         if len(ids) == 0:
@@ -71,16 +75,14 @@ class Database:
         return int(ids[len(ids) - 1]) + 1
 
     def destroy(self):
-        #Delete file
-        pass
+        self.clear()
+        os.remove(self.location)
 
     def clear(self):
         self.db = dict()
         self.dumpdb()
-        #Erase file info and self.db
-        pass
 
-    #Common stuff
+
 
 class ItemsDB(Database):
     def __init__(self, handler, file) -> None:
