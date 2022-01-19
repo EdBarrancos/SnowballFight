@@ -1,6 +1,3 @@
-from distutils import command
-import random
-import asyncio
 import json
 import os
 
@@ -22,6 +19,7 @@ class Database:
             self._load()
         else:
             self.db = dict()
+            self.dumpdb()
         logging.debug("\tDatase Loaded")
         return True
 
@@ -82,7 +80,29 @@ class Database:
             return False
         return False
     
+    def similar_entry(self, entry: dict) -> bool:
+        """ You can only enter part of the parameters.
+            If there is a entry with the same values in those parameters,
+                returns True
+            Else
+                returns False """
+        try:
+            for id in self.get_ids():
+                found = True
+                inst = self.get_instance(id)
+                for k in list(entry.keys()):
+
+                    if inst[k] != entry[k]:
+                        found = False
+                        break
+                if(found):
+                    return True
+            return False
+        except Exception as e:
+            raise e
+    
     def get_ids(self) -> list:
+        print(list(self.db.keys()))
         return list(self.db.keys())
 
     def get_next_id(self):
@@ -119,4 +139,29 @@ class ItemsDB(Database):
             return True
         else:
             return False
+
+class ProfilesDB(Database):
+    def __init__(self, handler, file) -> None:
+        super().__init__(handler, file)
+        #id
+            #player_id
+            #guild_id
+            #items [(id,nbr), ...]
+            #points
+            #status effect(DONT KNOW YET)
+            #logs [(activity name, timestamp, total cooldown)]
+
+    def add_entry(self, player_id = 0, guild_id = 0, items = None, points = 0, status = None, logs = None):
+        dct = {str(self.get_next_id()): {"player_id": player_id, "guild_id": guild_id,
+            "items": (list() if items == None else items), "points": points, "status": None,
+            "logs": list() if logs == None else logs}}
+        return super().add_entry(dct)
+    
+    def create_profile(self, player_id : int, guild_id : int):
+        try:
+            if self.similar_entry({"player_id": player_id, "guild_id": guild_id}):
+                raise Exception("Profile Already exists")
+            self.add_entry(player_id=player_id, guild_id=guild_id)
+        except Exception as e:
+            raise e
         
