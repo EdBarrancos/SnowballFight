@@ -3,9 +3,15 @@ import os
 
 # Third Party Imports
 import logging
+from tabnanny import check
 
 
 class Database:
+
+    ################
+    #BASE FUNCTIONS#
+    ################
+
     def __init__(self, handler, file) -> None:
         logging.debug("Initializing Database")
         self.handler = handler
@@ -33,20 +39,43 @@ class Database:
             return True
         except:
             raise Exception("Error dumping data into database")
-    
-    def add_entry(self, dct : dict):
-        logging.debug("Adding Entry")
-        try:
-            for key in dct.keys():
-                self.db[key] = dct[key]
-                self.dumpdb()
-                return True
-        except Exception as e:
-            logging.error("Error adding entry to database")
-            raise e
+
+    def destroy(self):
+        logging.debug("Destroying database")
+        self.clear()
+        os.remove(self.location)
+
+    def clear(self):
+        logging.debug("Clearing Database")
+        self.db = dict()
+        self.dumpdb()
+
+    ######
+    #GETS#
+    ######
 
     def get_instance(self, id) -> list:
+        if type(id) != str:
+            id = str(id)
         return self.db[id]
+
+    def get_first_entryid_with(self, entry) -> int:
+        """ Returns the first entry's id with the same corresponding values"""
+        try:
+            for id in self.get_ids():
+                found = True
+                inst = self.get_instance(id)
+                for k in list(entry.keys()):
+
+                    if inst[k] != entry[k]:
+                        found = False
+                        break
+                if(found):
+                    return id
+            return None
+        except Exception as e:
+            raise e
+
 
     def get_collumn(self, key) -> list:
         if len(self.get_ids()) == 0:
@@ -68,7 +97,44 @@ class Database:
             return self.db[self.get_ids()[0]].keys()
         except Exception as e:
             raise e
+
+    def get_ids(self) -> list:
+        print(list(self.db.keys()))
+        return list(self.db.keys())
+
+    def get_next_id(self):
+        try:
+            ids = self.get_ids()
+        except Exception as _:
+            return 0
+        if len(ids) == 0:
+            return 0
+        return int(ids[len(ids) - 1]) + 1
+
+    
+    def add_entry(self, dct : dict):
+        logging.debug("Adding Entry")
+        try:
+            for key in dct.keys():
+                if type(key) != str:
+                    key = str(key)
+                self.db[key] = dct[key]
+                self.dumpdb()
+                return True
+        except Exception as e:
+            logging.error("Error adding entry to database")
+            raise e
             
+    
+    def update_entry(self, id, new_entry):
+        try:
+            self.db[id] = new_entry
+            print(self.db)
+            self.dumpdb()
+            return True
+        except Exception as e:
+            logging.error("Error updating entry to database")
+            raise e
 
     def entry_exists(self, entry: dict) -> bool:
         try:
@@ -100,29 +166,6 @@ class Database:
             return False
         except Exception as e:
             raise e
-    
-    def get_ids(self) -> list:
-        print(list(self.db.keys()))
-        return list(self.db.keys())
-
-    def get_next_id(self):
-        try:
-            ids = self.get_ids()
-        except Exception as _:
-            return 0
-        if len(ids) == 0:
-            return 0
-        return int(ids[len(ids) - 1]) + 1
-
-    def destroy(self):
-        logging.debug("Destroying database")
-        self.clear()
-        os.remove(self.location)
-
-    def clear(self):
-        logging.debug("Clearing Database")
-        self.db = dict()
-        self.dumpdb()
 
 
 
@@ -139,6 +182,8 @@ class ItemsDB(Database):
             return True
         else:
             return False
+
+
 
 class ProfilesDB(Database):
     def __init__(self, handler, file) -> None:
@@ -160,8 +205,33 @@ class ProfilesDB(Database):
     def create_profile(self, player_id : int, guild_id : int):
         try:
             if self.similar_entry({"player_id": player_id, "guild_id": guild_id}):
-                raise Exception("Profile Already exists")
-            self.add_entry(player_id=player_id, guild_id=guild_id)
+                return False
+            return self.add_entry(player_id=player_id, guild_id=guild_id)
         except Exception as e:
             raise e
+    
+    def update_item(self, profile_id: int, item_id: int, item_count = 0):
+        if profile_id is None:
+            raise Exception("Invalid Player Id")
+        if item_id < 0:
+            raise Exception("Invalid Item Id")
+        try:
+            profile = self.get_instance(str(profile_id))
+            if self.item_exists_in_profile(profile, item_id):
+                for item in profile["items"]:
+                    if item[0] == item_id:
+                        item[1] += item_count
+            else:
+                profile["items"].append([item_id, item_count])
+
+            self.update_entry(str(profile_id), profile)
+            
+        except Exception as e:
+            raise e
+    
+    def item_exists_in_profile(self, profile, item_id):
+        for item in profile["items"]:
+            if item[0] == item_id:
+                return True
+        return False
         
