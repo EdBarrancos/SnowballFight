@@ -10,3 +10,4 @@ items.add_entry("bola", "bola de gelo")
 profile = db.ProfilesDB("hello","src/database/databases/testing/testProfile.json")
 
 profile.create_profile(1, 1)
+profile.update_item(0, 0, item_count=1)
