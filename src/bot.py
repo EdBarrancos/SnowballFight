@@ -1,11 +1,12 @@
 import asyncio
-
 import discord
 from discord.ext import commands
 import logging
+import sys
 
 #Local Imports
-from database.database import DatabaseProfile 
+from database.database import ProfilesDB
+from database.database import ItemsDB
 
 
 class MyBot(commands.Bot):
@@ -22,7 +23,8 @@ class MyBot(commands.Bot):
 
         print("Initializing Handlers")
 
-        self.cogHandler = CogHandler(self)
+        self.cog_handler = CogHandler(self)
+        self.db_handler = DatabaseHandler(self)
 
         print("Handlers Initialized")
 
@@ -53,13 +55,38 @@ class CogHandler(Handler):
     def __init__(self, owner) -> None:
         super().__init__(owner)
     
-    async def addCogs(self):
+    async def add_cogs(self):
         pass
 
-    async def addCog(self, cog : commands.Cog):
+    async def add_cog(self, cog : commands.Cog):
         self.owner.super().add_cog(cog)
 
 class DatabaseHandler(Handler):
     def __init__(self, owner) -> None:
         super().__init__(owner)
-        self.proDatabase = DatabaseProfile(self)
+        logging.debug("Initializing Databases")
+
+        try:
+            self.profile_db = ProfilesDB(self, "database/databases/testing/test_profiles.json")
+            self.item_db = ItemsDB(self, "database/databases/testing/test_items.json")
+        except Exception as exeption:
+            logging.error("Problem Initializing Databases")
+            sys.exit()
+
+        try:
+            self.init_items()
+        except Exception as exption:
+            logging.error("Unable to Initialize Items onto Database")
+            sys.exit()
+
+        logging.debug("Databases Initialized")
+
+    def init_items(self):
+        """
+        Initializates items to the Database
+        """
+        logging.debug("\tInitializing Items in Databases")
+        try:
+            self.item_db.add_entry("Common Snowball", "Snowball")
+        except Exception as exception:
+            raise exception
