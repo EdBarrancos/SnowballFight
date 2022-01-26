@@ -19,4 +19,4 @@ myBot = MyBot(("!", "$"))
 
 # myBot.run(os.getenv('token'))
 
-#myBot.run(config("token"))
+myBot.run(config("token"))
