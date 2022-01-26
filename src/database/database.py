@@ -3,23 +3,52 @@ import os
 
 # Third Party Imports
 import logging
-from tabnanny import check
 
 
 class Database:
+    """
+    Main Database class
 
+    ...
+
+    Attributes
+    ----------
+    hanlder : obj
+        Obj which has initialized the database
+    file : str
+        Location of the database file
+    """
     ################
     #BASE FUNCTIONS#
     ################
 
     def __init__(self, handler, file) -> None:
+        """
+        Constructs all the necessary attributes for the Database object.
+
+        Parameters
+        ----------
+            hanlder : obj
+                Obj which has initialized the database
+            file : str
+                Location of the database file
+        """
+
         logging.debug("Initializing Database")
         self.handler = handler
         self.location = os.path.expanduser(file)
         #Verify path for file as correct
         self.load(self.location)
 
-    def load(self , location):
+    def load(self , location : str):
+        """
+        Loads the File from the asserted location or creates the file 
+        
+        Parameters
+        ----------
+            location : str
+                Location of the database file
+        """
         logging.debug("\tLoading Database File")
         if os.path.exists(location):
             self._load()
@@ -30,6 +59,9 @@ class Database:
         return True
 
     def _load(self):
+        """ 
+        Loads the content on the database file into a local variable
+        """
         self.db = json.load(open(self.location , "r"))
 
     def dumpdb(self):
@@ -70,11 +102,11 @@ class Database:
                     if inst[k] != entry[k]:
                         found = False
                         break
-                if(found):
+                if found:
                     return id
             return None
-        except Exception as e:
-            raise e
+        except Exception as exception:
+            raise exception
 
 
     def get_collumn(self, key) -> list:
@@ -86,8 +118,8 @@ class Database:
             collumn = list()
             for id in self.get_ids():
                 collumn.append(self.db[id][key])
-        except Exception as e:
-            raise e
+        except Exception as exception:
+            raise exception
         return collumn
 
     def get_keys(self) -> list:
@@ -95,17 +127,16 @@ class Database:
             raise Exception("Empty Database")
         try:
             return self.db[self.get_ids()[0]].keys()
-        except Exception as e:
-            raise e
+        except Exception as exception:
+            raise exception
 
     def get_ids(self) -> list:
-        print(list(self.db.keys()))
         return list(self.db.keys())
 
     def get_next_id(self):
         try:
             ids = self.get_ids()
-        except Exception as _:
+        except:
             return 0
         if len(ids) == 0:
             return 0
@@ -121,20 +152,19 @@ class Database:
                 self.db[key] = dct[key]
                 self.dumpdb()
                 return True
-        except Exception as e:
+        except Exception as exception:
             logging.error("Error adding entry to database")
-            raise e
+            raise exception
             
     
     def update_entry(self, id, new_entry):
         try:
             self.db[id] = new_entry
-            print(self.db)
             self.dumpdb()
             return True
-        except Exception as e:
+        except Exception as exception:
             logging.error("Error updating entry to database")
-            raise e
+            raise exception
 
     def entry_exists(self, entry: dict) -> bool:
         try:
@@ -157,15 +187,14 @@ class Database:
                 found = True
                 inst = self.get_instance(id)
                 for k in list(entry.keys()):
-
                     if inst[k] != entry[k]:
                         found = False
                         break
-                if(found):
+                if found:
                     return True
             return False
-        except Exception as e:
-            raise e
+        except Exception as exception:
+            raise exception
 
 
 
@@ -177,8 +206,8 @@ class ItemsDB(Database):
         if not self.entry_exists({"type": type,"name": name}):
             try:
                 super().add_entry({str(self.get_next_id()): {"type": type, "name": name}})
-            except Exception as e:
-                raise e
+            except Exception as exception:
+                raise exception
             return True
         else:
             return False
@@ -226,8 +255,8 @@ class ProfilesDB(Database):
 
             self.update_entry(str(profile_id), profile)
             
-        except Exception as e:
-            raise e
+        except Exception as exception:
+            raise exception
     
     def item_exists_in_profile(self, profile, item_id):
         for item in profile["items"]:
