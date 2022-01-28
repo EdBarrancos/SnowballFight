@@ -5,7 +5,7 @@ import logging
 import sys
 
 #Local Imports
-from cogs.profile_cog import Profile_Cog
+from cogs.profile_cog import ProfileCog
 
 
 class MyBot(commands.Bot):
@@ -54,7 +54,7 @@ class CogHandler(Handler):
         super().__init__(owner)
     
     async def add_cogs(self):
-        self.profile_cog = Profile_Cog(self)
+        self.profile_cog = ProfileCog(self)
 
         await self.add_cog(self.profile_cog)
 

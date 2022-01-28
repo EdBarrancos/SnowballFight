@@ -6,7 +6,7 @@ import sys
 from database.database import ProfilesDB
 from database.database import ItemsDB
 
-class Profile_Cog(commands.cog):
+class ProfileCog(commands.cog):
     def __init__(self, handler):
         self.handler = handler
 
