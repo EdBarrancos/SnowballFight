@@ -8,3 +8,5 @@
 - [ ] [Database](src/database/database.py): Fix Warnings and Errors from Pylint
 - [ ] [Bot](src/bot.py): Create Custom Exceptions
 - [ ] [Bot](src/bot.py): Fix Warnings and Errors from Pylint
+- [ ] [ProfileCog](src/cogs/profile_cog.py): Create Custom Exceptions
+- [ ] [ProfileCog](src/cogs/profile_cog.py): Fix Warnings and Errors from Pylint
