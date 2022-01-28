@@ -36,13 +36,6 @@ class MyBot(commands.Bot):
     async def on_guild_remove(self, guild):
         logging.info(f'Guild {guild.name} left')
 
-    
-    async def on_message(self, message):
-        if message.author != self.user:
-            logging.info(f'Message received {message.content}')
-            webhook = await message.channel.send(message.content)
-            return await super().on_message(message)
-
 
 class Handler():
     def __init__(self, owner) -> None:
@@ -52,11 +45,10 @@ class Handler():
 class CogHandler(Handler):
     def __init__(self, owner) -> None:
         super().__init__(owner)
+        self.add_cogs()
     
-    async def add_cogs(self):
-        self.profile_cog = ProfileCog(self)
+    def add_cogs(self):
+        self.add_cog(ProfileCog(self))
 
-        await self.add_cog(self.profile_cog)
-
-    async def add_cog(self, cog : commands.Cog):
-        self.owner.super().add_cog(cog)
+    def add_cog(self, cog : commands.Cog):
+        self.owner.add_cog(cog)

@@ -6,7 +6,7 @@ import sys
 from database.database import ProfilesDB
 from database.database import ItemsDB
 
-class ProfileCog(commands.cog):
+class ProfileCog(commands.Cog):
     def __init__(self, handler):
         self.handler = handler
 
@@ -31,8 +31,17 @@ class ProfileCog(commands.cog):
         """
         Initializates items to the Database
         """
+
         logging.debug("\tInitializing Items in Databases")
         try:
             self.item_db.add_entry("Common Snowball", "Snowball")
         except Exception as exception:
             raise exception
+
+    name = "profile"
+    aliases = tuple()
+    helpMessage = ""
+    briefMessage = ""
+    @commands.command(name=name, aliases=aliases, help=helpMessage, brief=briefMessage)
+    async def profile_command(self, ctx):
+        await ctx.send(f'Player Id: {ctx.author.id}\nGuild Id: {ctx.guild.id}')
