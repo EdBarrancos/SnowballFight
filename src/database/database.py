@@ -142,6 +142,9 @@ class Database:
             return 0
         return int(ids[len(ids) - 1]) + 1
 
+    def get_all_entries(self):
+        return self.db
+
     
     def add_entry(self, dct : dict):
         logging.debug("Adding Entry")
@@ -263,4 +266,21 @@ class ProfilesDB(Database):
             if item[0] == item_id:
                 return True
         return False
+    
+    def get_profiles(self, player_id = None, guild_id = None) -> list:
+        try:
+            lst = list()
+            entries = self.get_all_entries()
+            for entry in entries:
+                if player_id is not None:
+                    if entries[entry]["player_id"] == player_id:
+                        lst.append(entries[entry])
+                elif guild_id is not None:
+                    if entries[entry]["guild_id"] == guild_id:
+                        lst.append(entries[entry])
+                else:
+                    lst.append(entries[entry])
+        except Exception as exception:
+            raise exception
+        return lst
         
