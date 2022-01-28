@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 
@@ -146,7 +147,7 @@ class Database:
         return self.db
 
     
-    def add_entry(self, dct : dict):
+    async def add_entry(self, dct : dict):
         logging.debug("Adding Entry")
         try:
             for key in dct.keys():
@@ -160,7 +161,7 @@ class Database:
             raise exception
             
     
-    def update_entry(self, id, new_entry):
+    async def update_entry(self, id, new_entry):
         try:
             self.db[id] = new_entry
             self.dumpdb()
@@ -179,7 +180,7 @@ class Database:
             return False
         return False
     
-    def similar_entry(self, entry: dict) -> bool:
+    async def similar_entry(self, entry: dict) -> bool:
         """ You can only enter part of the parameters.
             If there is a entry with the same values in those parameters,
                 returns True
@@ -205,15 +206,14 @@ class ItemsDB(Database):
     def __init__(self, handler, file) -> None:
         super().__init__(handler, file)
     
-    def add_entry(self, type : str, name : str):
-        if not self.entry_exists({"type": type,"name": name}):
+    async def add_entry(self, type : str, name : str):
+        if not await self.entry_exists({"type": type,"name": name}):
             try:
-                super().add_entry({str(self.get_next_id()): {"type": type, "name": name}})
+                await super().add_entry({str(self.get_next_id()): {"type": type, "name": name}})
             except Exception as exception:
                 raise exception
             return True
-        else:
-            return False
+        return False
 
 
 
@@ -228,46 +228,46 @@ class ProfilesDB(Database):
             #status effect(DONT KNOW YET)
             #logs [(activity name, timestamp, total cooldown)]
 
-    def add_entry(self, player_id = 0, guild_id = 0, items = None, points = 0, status = None, logs = None):
+    async def add_entry(self, player_id = 0, guild_id = 0, items = None, points = 0, status = None, logs = None):
         dct = {str(self.get_next_id()): {"player_id": player_id, "guild_id": guild_id,
             "items": (list() if items == None else items), "points": points, "status": None,
             "logs": list() if logs == None else logs}}
-        return super().add_entry(dct)
+        return await super().add_entry(dct)
     
-    def create_profile(self, player_id : int, guild_id : int):
+    async def create_profile(self, player_id : int, guild_id : int):
         try:
-            if self.similar_entry({"player_id": player_id, "guild_id": guild_id}):
+            if await self.similar_entry({"player_id": player_id, "guild_id": guild_id}):
                 return False
-            return self.add_entry(player_id=player_id, guild_id=guild_id)
+            return await self.add_entry(player_id=player_id, guild_id=guild_id)
         except Exception as e:
             raise e
     
-    def update_item(self, profile_id: int, item_id: int, item_count = 0):
+    async def update_item(self, profile_id: int, item_id: int, item_count = 0):
         if profile_id is None:
             raise Exception("Invalid Player Id")
         if item_id < 0:
             raise Exception("Invalid Item Id")
         try:
             profile = self.get_instance(str(profile_id))
-            if self.item_exists_in_profile(profile, item_id):
+            if await self.item_exists_in_profile(profile, item_id):
                 for item in profile["items"]:
                     if item[0] == item_id:
                         item[1] += item_count
             else:
                 profile["items"].append([item_id, item_count])
 
-            self.update_entry(str(profile_id), profile)
+            await self.update_entry(str(profile_id), profile)
             
         except Exception as exception:
             raise exception
     
-    def item_exists_in_profile(self, profile, item_id):
+    async def item_exists_in_profile(self, profile, item_id):
         for item in profile["items"]:
             if item[0] == item_id:
                 return True
         return False
     
-    def get_profiles(self, player_id = None, guild_id = None) -> list:
+    async def get_profiles(self, player_id = None, guild_id = None) -> list:
         try:
             lst = list()
             entries = self.get_all_entries()
@@ -283,4 +283,7 @@ class ProfilesDB(Database):
         except Exception as exception:
             raise exception
         return lst
+    
+    async def does_profile_exist(self):
+        pass
         
