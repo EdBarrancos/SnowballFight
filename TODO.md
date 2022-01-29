@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] [Database](src/database/database.py): Documentation
+- [x] [Database](src/database/database.py): Documentation
 - [x] [Database](src/database/database.py): Debug Logs
 - [ ] [Database](src/database/database.py): Error Logs
 - [ ] [Database](src/database/database.py): Verify database location path
@@ -15,3 +15,4 @@
 - [ ] [ProfileCog](src/cogs/profile_cog.py): Error Logs
 - [ ] [Database](src/database/database.py): Create Report Database so people can report problems
 - [ ] [ProfileCog](src/cogs/profile_cog.py): Improve path to database selection, it depends on the file that called Profile, need to make that more modular and robust
+- [ ] [Database](src/database/database.py): Complete TODOs

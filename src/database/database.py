@@ -1,10 +1,15 @@
-import asyncio
-import json
-import os
+""" database.py
+
+A Module with classes and functions to manage and maintain the Databases in this project
+
+Contains a Database class that has low level management functions
+It also has more specific classes which inherit the main Database class
+"""
 
 # Third Party Imports
 import logging
-
+import json
+import os
 
 class Database:
     """
@@ -14,14 +19,11 @@ class Database:
 
     Attributes
     ----------
-    hanlder : obj
+    handler : obj
         Obj which has initialized the database
     file : str
         Location of the database file
     """
-    ################
-    #BASE FUNCTIONS#
-    ################
 
     def __init__(self, handler, file) -> None:
         """
@@ -38,18 +40,19 @@ class Database:
         logging.debug("Initializing Database")
         self.handler = handler
         self.location = os.path.expanduser(file)
-        #Verify path for file as correct
+        #TODO: Verify path for file as correct
         self.load(self.location)
 
     def load(self , location : str):
         """
-        Loads the File from the asserted location or creates the file 
-        
+        Loads the File from the asserted location or creates the file
+
         Parameters
         ----------
             location : str
                 Location of the database file
         """
+
         logging.debug("\tLoading Database File")
         if os.path.exists(location):
             self._load()
@@ -60,12 +63,17 @@ class Database:
         return True
 
     def _load(self):
-        """ 
+        """
         Loads the content on the database file into a local variable
         """
+
         self.db = json.load(open(self.location , "r"))
 
     def dumpdb(self):
+        """
+        Dumps the content on the local database into its file
+        """
+
         logging.debug("Dumping into database")
         try:
             json.dump(self.db , open(self.location, "w+"), indent=4)
@@ -74,33 +82,65 @@ class Database:
             raise Exception("Error dumping data into database")
 
     def destroy(self):
+        """
+        Erases the information on the local database and deletes the file
+        """
+
         logging.debug("Destroying database")
         self.clear()
         os.remove(self.location)
 
     def clear(self):
+        """
+        Erases the information on the local database
+        """
+
         logging.debug("Clearing Database")
         self.db = dict()
         self.dumpdb()
 
-    ######
-    #GETS#
-    ######
+    def get_entry(self, key : int) -> dict:
+        """
+        Returns the entry associated with the given id
 
-    def get_instance(self, id) -> list:
-        if type(id) != str:
-            id = str(id)
-        return self.db[id]
+        Parameters
+        ----------
+            key : int
+                Entry's Id
 
-    def get_first_entryid_with(self, entry) -> int:
-        """ Returns the first entry's id with the same corresponding values"""
+        Return
+        ------
+            type : dict
+            Returns Entry of the corresponding key
+        """
+
+        if isinstance(key,str):
+            key = str(key)
+        return self.db[key]
+
+    def get_entry_key_w(self, entry_parameters : dict) -> int:
+        """
+        Returns the first entry's id with the same corresponding values
+
+        Parameters
+        ----------
+            entry_parameters : dict
+                The Parameters to search for in the database
+
+        Return
+        ------
+            type : int
+            Returns the First Key of the Entry that has the corresponding paramters
+        """
+    
+        #TODO: Improve?
         try:
-            for id in self.get_ids():
+            for key in self.get_keys():
                 found = True
-                inst = self.get_instance(id)
-                for k in list(entry.keys()):
+                inst = self.get_entry(key)
+                for k in list(entry_parameters.keys()):
 
-                    if inst[k] != entry[k]:
+                    if inst[k] != entry_parameters[k]:
                         found = False
                         break
                 if found:
@@ -110,60 +150,131 @@ class Database:
             raise exception
 
 
-    def get_collumn(self, key) -> list:
-        if len(self.get_ids()) == 0:
+    def get_collumn(self, entry_parameters : dict) -> list:
+        """
+        Returns a List
+
+        Parameters
+        ----------
+            entry_parameters : dict
+                The Parameters to search for in the database
+
+        Return
+        ------
+            type : list
+            Returns a list with the values of the parameter in each entry
+        """
+
+        if len(self.get_keys()) == 0:
             raise Exception("Empty Database")
-        if key not in self.db[self.get_ids()[0]].keys():
-            raise Exception("Key does not exist in database")
+        if entry_parameters not in self.db[self.get_keys()[0]].keys():
+            raise Exception("Parameter does not exist in database")
         try:
             collumn = list()
-            for id in self.get_ids():
-                collumn.append(self.db[id][key])
+            for key in self.get_keys():
+                collumn.append(self.db[key][entry_parameters])
         except Exception as exception:
             raise exception
         return collumn
 
-    def get_keys(self) -> list:
-        if len(self.get_ids()) == 0:
+    def get_parameters(self) -> list:
+        """
+        Returns a list with all the parameters
+
+        Return
+        ------
+            type : list
+            Returns a list with all the parameters
+        """
+
+        if len(self.get_keys()) == 0:
             raise Exception("Empty Database")
         try:
-            return self.db[self.get_ids()[0]].keys()
+            return self.db[self.get_keys()[0]].keys()
         except Exception as exception:
             raise exception
 
-    def get_ids(self) -> list:
+    def get_keys(self) -> list:
+        """
+        Returns a list with all the keys in the database
+
+        Return
+        ------
+            type : list
+            Returns a list with all the keys in the database
+        """
+
         return list(self.db.keys())
 
-    def get_next_id(self):
+    def get_next_key(self) -> int:
+        """
+        Returns the next available key
+
+        Return
+        ------
+            type : int
+            Returns the next available key
+        """
+
         try:
-            ids = self.get_ids()
+            keys = self.get_keys()
         except:
             return 0
-        if len(ids) == 0:
+        if len(keys) == 0:
             return 0
-        return int(ids[len(ids) - 1]) + 1
+        return int(keys[len(keys) - 1]) + 1
 
-    def get_all_entries(self):
+    def get_all_entries(self) -> dict:
+        """
+        Returns the whole database
+
+        Return
+        ------
+            type : dict
+            Returns the whole database
+        """
+
         return self.db
 
-    
-    def add_entry(self, dct : dict):
+    def add_entry(self, entry_to_add : dict):
+        """
+        Adds an entry to the database
+
+        Parameters
+        ------
+            entry_to_add : dict
+                Entry to be added to the database
+        """
+
+        #TODO: Options to check if entry exists or not
+        #TODO: Receive only dict with parameters and calculate the next key here
         logging.debug("Adding Entry")
         try:
-            for key in dct.keys():
-                if type(key) != str:
+            for key in entry_to_add.keys():
+                if not isinstance(key, str):
                     key = str(key)
-                self.db[key] = dct[key]
+                self.db[key] = entry_to_add[key]
                 self.dumpdb()
                 return True
         except Exception as exception:
             logging.error("Error adding entry to database")
             raise exception
-            
-    
-    async def update_entry(self, id, new_entry):
+
+    async def update_entry(self, key : int, new_entry : dict):
+        """
+        Updates an entry already in the database
+
+        Parameters
+        ------
+            key : int
+                Key of the Entry to update
+            new_entry : dict
+                Updated version of the Entry
+        """
+
         try:
-            self.db[id] = new_entry
+            #TODO: Check for Entry existance
+            self.db[key] = new_entry
             self.dumpdb()
             return True
         except Exception as exception:
@@ -171,25 +282,46 @@ class Database:
             raise exception
 
     def entry_exists(self, entry: dict) -> bool:
-        try:
-            ids = self.get_ids()
-            for id in ids:
-                if self.get_instance(id) == entry:
-                    return True
-        except:
-            return False
+        """
+        Check if Entry exists in database
+
+        Parameters
+        ------
+            entry : dict
+                Entry to check
+
+        Return
+        ------
+            type : bool
+            Returns True if entry exists, False otherwise
+        """
+
+        keys = self.get_keys()
+        for key in keys:
+            if self.get_entry(key) == entry:
+                return True
         return False
-    
+
     async def similar_entry(self, entry: dict) -> bool:
-        """ You can only enter part of the parameters.
-            If there is a entry with the same values in those parameters,
-                returns True
-            Else
-                returns False """
+        """
+        Checks if an entry with the same values to the same parameters exists
+
+        Parameters
+        ----------
+            entry : dict
+                The Parameters to search a similar entry for
+
+        Return
+        ------
+            type : bool
+            True if entry found, False otherwise
+        """
+
+        #TODO: Improve?
         try:
-            for id in self.get_ids():
+            for key in self.get_keys():
                 found = True
-                inst = self.get_instance(id)
+                inst = self.get_entry(key)
                 for k in list(entry.keys()):
                     if inst[k] != entry[k]:
                         found = False
@@ -203,70 +335,211 @@ class Database:
 
 
 class ItemsDB(Database):
-    def __init__(self, handler, file) -> None:
-        super().__init__(handler, file)
-    
-    def add_entry(self, type : str, name : str):
-        if not self.entry_exists({"type": type,"name": name}):
-            try:
-                super().add_entry({str(self.get_next_id()): {"type": type, "name": name}})
-            except Exception as exception:
-                raise exception
+    """
+    Items Database Class
+
+    Database to store the existing items in the system
+
+    ...
+
+    Attributes
+    ----------
+    handler : obj
+        Obj which has initialized the database
+    file : str
+        Location of the database file
+
+    ...
+
+    Database Organization
+    ---------------------
+    key
+        type : str
+            Item type
+        name : str
+            Item's name
+    """
+
+    def add_item(self, item_type : str, item_name : str) -> bool:
+        """
+        Add Item to the Database
+        
+        Parameters
+        ----------
+            item_type : str
+                Item's type
+            item_name : str
+                Item's name
+
+        Return
+        ------
+            type : bool
+            True if Item is added, False if it already exists in the database
+        """
+
+        if not self.entry_exists({"type": item_type,"name": item_name}):
+            super().add_entry({str(self.get_next_key()): {"type": item_type, "name": item_name}})
             return True
         return False
 
 
 
 class ProfilesDB(Database):
-    def __init__(self, handler, file) -> None:
-        super().__init__(handler, file)
-        #id
-            #player_id
-            #guild_id
-            #items [(id,nbr), ...]
-            #points
-            #status effect(DONT KNOW YET)
-            #logs [(activity name, timestamp, total cooldown)]
+    """
+    Profile Database Class
 
-    def add_entry(self, player_id = 0, guild_id = 0, items = None, points = 0, status = None, logs = None):
-        dct = {str(self.get_next_id()): {"player_id": player_id, "guild_id": guild_id,
-            "items": (list() if items == None else items), "points": points, "status": None,
-            "logs": list() if logs == None else logs}}
+    Database to store the profiles in the system
+
+    ...
+
+    Attributes
+    ----------
+    handler : obj
+        Obj which has initialized the database
+    file : str
+        Location of the database file
+
+    ...
+
+    Database Organization
+    ---------------------
+    key
+        player_id : str
+            Owner's Id inside Discord
+        guild_id : str
+            Guild's Id the Profile exists in
+        items : list : [(item's id, item's count on the profile), ...]
+            List of Items in the players possession
+        points : int
+            Profile's Points
+        status effect : Unknown
+            Future Feature?
+        logs : list : [(action's name, init timestamp, total cooldown), ...]
+            Log of profile's action in order to keep track of cooldowns
+    """
+
+    def add_profile(self, player_id = 0, guild_id = 0, items = None, points = 0, status = None, logs = None):
+        """
+        Add Profile to the Database
+
+        Parameters
+        ----------
+            player_id[Optionl] : int[0]
+                Owner's Id inside Discord
+            guild_id[Optionl] : int[0]
+                Guild's Id the Profile exists in
+            items[Optionl] : list[None] : [(item's id, item's count on the profile), ...]
+                List of Items in the players possession
+            points[Optionl] : int[0]
+                Profile's Points
+            status effect[Optionl] : Unknown[None]
+                Future Feature?
+            logs[Optionl] : list[None] : [(action's name, init timestamp, total cooldown), ...]
+                Log of profile's action in order to keep track of cooldowns
+
+        Return
+        ------
+            type : bool
+            True if Item is added, False if it already exists in the database
+        """
+        dct = {str(self.get_next_key()): {"player_id": player_id, "guild_id": guild_id,
+            "items": list() if items is None else items, "points": points,
+            "status": None if status is None else status,
+            "logs": list() if logs is None else logs}}
         return super().add_entry(dct)
-    
-    async def create_profile(self, player_id : int, guild_id : int):
-        try:
-            if await self.similar_entry({"player_id": player_id, "guild_id": guild_id}):
-                return False
-            return self.add_entry(player_id=player_id, guild_id=guild_id)
-        except Exception as e:
-            raise e
-    
-    async def update_item(self, profile_id: int, item_id: int, item_count = 0):
-        if profile_id is None:
+
+    async def create_profile(self, player_id : int, guild_id : int) -> bool:
+        """
+        Creates Empty Profile in the Database
+
+        Parameters
+        ----------
+            player_id : int
+                Owner's Id inside Discord
+            guild_id : int
+                Guild's Id the Profile exists in
+
+        Return
+        ------
+            type : bool
+            True if profile added to the database, False otherwise
+        """
+
+        if await self.similar_entry({"player_id": player_id, "guild_id": guild_id}):
+            return False
+        return self.add_profile(player_id=player_id, guild_id=guild_id)
+
+    async def update_item(self, profile_key: int, item_key: int, item_count = 1):
+        """
+        Update Items in a Profile
+
+        Parameters
+        ----------
+            profile_key : int
+                Profile's key
+            item_key : int
+                Item's Key to be added to the Profile
+            item_count[Optional] : int[1]
+                Number of Item's to add to the Profile
+        """
+
+        #TODO: Delete Item from List if Count reaches to 0
+        if profile_key is None:
             raise Exception("Invalid Player Id")
-        if item_id < 0:
+        if item_key < 0:
             raise Exception("Invalid Item Id")
         try:
-            profile = self.get_instance(str(profile_id))
-            if await self.item_exists_in_profile(profile, item_id):
+            profile = self.get_entry(str(profile_key))
+            if await self.item_exists_in_profile(profile, item_key):
                 for item in profile["items"]:
-                    if item[0] == item_id:
+                    if item[0] == item_key:
                         item[1] += item_count
             else:
-                profile["items"].append([item_id, item_count])
+                profile["items"].append([item_key, item_count])
 
-            await self.update_entry(str(profile_id), profile)   
+            await self.update_entry(str(profile_key), profile)
         except Exception as exception:
             raise exception
 
-    async def item_exists_in_profile(self, profile, item_id):
+    async def item_exists_in_profile(self, profile : dict, item_key : int) -> bool:
+        """
+        Check if Profile is the possession of an item
+
+        Parameters
+        ----------
+            profile : dict
+                Profile
+            item_key : int
+                Item's Key to be added to the Profile
+
+        Return
+        ------
+            type : bool
+            True if item exists in profile, False otherwise
+        """
+
         for item in profile["items"]:
-            if item[0] == item_id:
+            if item[0] == item_key:
                 return True
         return False
-  
+
     async def get_profiles(self, player_id = None, guild_id = None) -> list:
+        """
+        Get Profiles with optional search paramteres
+
+        Parameters
+        ----------
+            player_id[Optional] : int[None]
+                Owner's Id inside Discord
+            guild_id[Optional] : int[None]
+                Guild's Id the Profile exists in
+
+        Return
+        ------
+            type : list
+            List of profiles found
+        """
+
         lst = list()
         entries = self.get_all_entries()
         for entry in entries:
@@ -284,6 +557,22 @@ class ProfilesDB(Database):
                 lst.append(entries[entry])
         return lst
 
-    async def does_profile_exist(self, player_id, guild_id):
+    async def does_profile_exist(self, player_id : int, guild_id : int) -> bool:
+        """
+        Check if Profile Exists
+
+        Parameters
+        ----------
+            player_id : int
+                Owner's Id inside Discord
+            guild_id : int
+                Guild's Id the Profile exists in
+
+        Return
+        ------
+            type : bool
+            True if profile exists, False otherwise
+        """
+
         return len(await self.get_profiles(player_id=player_id, guild_id=guild_id)) != 0
         

@@ -34,7 +34,7 @@ class ProfileCog(commands.Cog):
 
         logging.debug("\tInitializing Items in Databases")
         try:
-            self.item_db.add_entry("Common Snowball", "Snowball")
+            self.item_db.add_item("Common Snowball", "Snowball")
         except Exception as exception:
             raise exception
 
@@ -47,8 +47,8 @@ class ProfileCog(commands.Cog):
         if not await self.profile_db.does_profile_exist(ctx.author.id, ctx.guild.id):
             try:
                 await self.profile_db.create_profile(ctx.author.id, ctx.guild.id)
-            except Exception as _:
-                await ctx.send("Error while creating profile")
+            except Exception as exception:
+                await ctx.send("Error while creating profile ", exception)
                 return
         try:
             profile = await self.profile_db.get_profiles(player_id=ctx.author.id, guild_id=ctx.guild.id)
@@ -59,6 +59,6 @@ class ProfileCog(commands.Cog):
             embed = discord.Embed(title=title, color=discord.Colour.random())
             embed.add_field(name="Points", value=profile[0]["points"])
             await ctx.send(embed=embed)
-        except Exception as _:
-            await ctx.send("Error while creating embed")
+        except Exception as exception:
+            await ctx.send("Error while creating embed ", exception)
             
