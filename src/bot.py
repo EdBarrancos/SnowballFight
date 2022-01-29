@@ -5,7 +5,7 @@ import logging
 import sys
 
 #Local Imports
-from cogs.profile_cog import ProfileCog
+from .cogs.profile_cog import ProfileCog
 
 
 class MyBot(commands.Bot):
