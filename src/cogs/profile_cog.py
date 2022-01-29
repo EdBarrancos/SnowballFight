@@ -34,7 +34,7 @@ class ProfileCog(commands.Cog):
 
         logging.debug("\tInitializing Items in Databases")
         try:
-            self.item_db.add_entry("Common Snowball", "Snowball")
+            self.item_db.add_item("Common Snowball", "Snowball")
         except Exception as exception:
             raise exception
 
