@@ -52,8 +52,11 @@ class ProfileCog(commands.Cog):
                 return
         try:
             profile = await self.profile_db.get_profiles(player_id=ctx.author.id, guild_id=ctx.guild.id)
-            embed = discord.Embed(title=ctx.guild.get_member(profile[0]["player_id"]).name)
             
+            nick = ctx.guild.get_member(profile[0]["player_id"]).nick
+            name = ctx.guild.get_member(profile[0]["player_id"]).name
+            title = nick if nick is not None else name
+            embed = discord.Embed(title=title)
             embed.add_field(name="Points", value=profile[0]["points"])
             await ctx.send(embed=embed)
         except Exception as _:
