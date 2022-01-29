@@ -256,34 +256,34 @@ class ProfilesDB(Database):
             else:
                 profile["items"].append([item_id, item_count])
 
-            await self.update_entry(str(profile_id), profile)
-            
+            await self.update_entry(str(profile_id), profile)   
         except Exception as exception:
             raise exception
-    
+
     async def item_exists_in_profile(self, profile, item_id):
         for item in profile["items"]:
             if item[0] == item_id:
                 return True
         return False
-    
+  
     async def get_profiles(self, player_id = None, guild_id = None) -> list:
-        try:
-            lst = list()
-            entries = self.get_all_entries()
-            for entry in entries:
-                if player_id is not None:
-                    if entries[entry]["player_id"] == player_id:
-                        lst.append(entries[entry])
-                elif guild_id is not None:
+        lst = list()
+        entries = self.get_all_entries()
+        for entry in entries:
+            if player_id is not None and guild_id is not None:
+                if entries[entry]["player_id"] == player_id:
                     if entries[entry]["guild_id"] == guild_id:
                         lst.append(entries[entry])
-                else:
+            elif player_id is not None:
+                if entries[entry]["player_id"] == player_id:
                     lst.append(entries[entry])
-        except Exception as exception:
-            raise exception
+            elif guild_id is not None:
+                if entries[entry]["guild_id"] == guild_id:
+                    lst.append(entries[entry])
+            else:
+                lst.append(entries[entry])
         return lst
-    
-    async def does_profile_exist(self):
-        pass
+
+    async def does_profile_exist(self, player_id, guild_id):
+        return len(await self.get_profiles(player_id=player_id, guild_id=guild_id)) != 0
         
