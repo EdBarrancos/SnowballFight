@@ -52,13 +52,10 @@ class ProfileCog(commands.Cog):
                 return
         try:
             profile = await self.profile_db.get_profiles(player_id=ctx.author.id, guild_id=ctx.guild.id)
-            embed = discord.Embed()
-            print(profile)
-            print(ctx.guild.members)
-            embed.title = ctx.guild.get_member(profile["player_id"]).name
-            embed.add_field(name="Points", value=profile["points"])
+            embed = discord.Embed(title=ctx.guild.get_member(profile[0]["player_id"]).name)
+            
+            embed.add_field(name="Points", value=profile[0]["points"])
             await ctx.send(embed=embed)
         except Exception as _:
-            await ctx.send("Error while creating embed with profile information")
-            return
+            await ctx.send("Error while creating embed")
             

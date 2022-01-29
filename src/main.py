@@ -12,8 +12,10 @@ logging.basicConfig(format='%(levelname)s:%(message)s',
                     filename="../bot_logs/snowman.log", 
                     level=logging.DEBUG, filemode="w")
 
+intents = discord.Intents.default()
+intents.members = True
 
-myBot = MyBot(("!", "$"))
+myBot = MyBot(("!", "$"), intents=intents)
 
 # keep_alive.keep_alive()
 
