@@ -14,3 +14,4 @@
 - [ ] [ProfileCog](src/cogs/profile_cog.py): Debug Logs
 - [ ] [ProfileCog](src/cogs/profile_cog.py): Error Logs
 - [ ] [Database](src/database/database.py): Create Report Database so people can report problems
+- [ ] [ProfileCog](src/cogs/profile_cog.py): Improve path to database selection, it depends on the file that called Profile, need to make that more modular and robust
