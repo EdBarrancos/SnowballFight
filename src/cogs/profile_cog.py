@@ -3,8 +3,8 @@ from discord.ext import commands
 import logging
 import sys
 
-from database.database import ProfilesDB
-from database.database import ItemsDB
+from ..database.database import ProfilesDB
+from ..database.database import ItemsDB
 
 class ProfileCog(commands.Cog):
     def __init__(self, handler):
@@ -13,8 +13,8 @@ class ProfileCog(commands.Cog):
         logging.debug("Initializing Databases")
 
         try:
-            self.profile_db = ProfilesDB(self, "database/databases/testing/test_profiles.json")
-            self.item_db = ItemsDB(self, "database/databases/testing/test_items.json")
+            self.profile_db = ProfilesDB(self, "src/database/databases/testing/test_profiles.json")
+            self.item_db = ItemsDB(self, "src/database/databases/testing/test_items.json")
         except Exception as _:
             logging.error("Problem Initializing Databases")
             sys.exit()
@@ -56,7 +56,7 @@ class ProfileCog(commands.Cog):
             nick = ctx.guild.get_member(profile[0]["player_id"]).nick
             name = ctx.guild.get_member(profile[0]["player_id"]).name
             title = nick if nick is not None else name
-            embed = discord.Embed(title=title)
+            embed = discord.Embed(title=title, color=discord.Colour.random())
             embed.add_field(name="Points", value=profile[0]["points"])
             await ctx.send(embed=embed)
         except Exception as _:

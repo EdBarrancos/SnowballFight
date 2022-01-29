@@ -5,11 +5,11 @@ import logging
 from decouple import config
 
 #Local Imports
-from bot import MyBot
+from src.bot import MyBot
 
 
-logging.basicConfig(format='%(levelname)s:%(message)s', 
-                    filename="../bot_logs/snowman.log", 
+logging.basicConfig(format='%(levelname)s:%(message)s',
+                    filename="bot_logs/snowman.log",
                     level=logging.DEBUG, filemode="w")
 
 intents = discord.Intents.default()
