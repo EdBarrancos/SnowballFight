@@ -1,10 +1,15 @@
-import asyncio
-import json
-import os
+""" database.py
+
+A Module with classes and functions to manage and maintain the Databases in this project
+
+Contains a Database class that has low level management functions
+It also has more specific classes which inherit the main Database class
+"""
 
 # Third Party Imports
 import logging
-
+import json
+import os
 
 class Database:
     """
@@ -14,7 +19,7 @@ class Database:
 
     Attributes
     ----------
-    hanlder : obj
+    handler : obj
         Obj which has initialized the database
     file : str
         Location of the database file
@@ -38,7 +43,7 @@ class Database:
         logging.debug("Initializing Database")
         self.handler = handler
         self.location = os.path.expanduser(file)
-        #Verify path for file as correct
+        #TODO: Verify path for file as correct
         self.load(self.location)
 
     def load(self , location : str):
@@ -60,12 +65,15 @@ class Database:
         return True
 
     def _load(self):
-        """ 
+        """
         Loads the content on the database file into a local variable
         """
         self.db = json.load(open(self.location , "r"))
 
     def dumpdb(self):
+        """
+        Dumps the content on the local database into its file
+        """
         logging.debug("Dumping into database")
         try:
             json.dump(self.db , open(self.location, "w+"), indent=4)
@@ -74,11 +82,17 @@ class Database:
             raise Exception("Error dumping data into database")
 
     def destroy(self):
+        """
+        Erases the information on the local database and deletes the file
+        """
         logging.debug("Destroying database")
         self.clear()
         os.remove(self.location)
 
     def clear(self):
+        """
+        Erases the information on the local database
+        """
         logging.debug("Clearing Database")
         self.db = dict()
         self.dumpdb()
@@ -87,7 +101,15 @@ class Database:
     #GETS#
     ######
 
-    def get_instance(self, id) -> list:
+    def get_instance(self, id : int) -> dict:
+        """
+        Returns the entry associated with the given id
+        
+        Parameters
+        ----------
+            id : int
+                Entry's Id
+        """
         if type(id) != str:
             id = str(id)
         return self.db[id]
