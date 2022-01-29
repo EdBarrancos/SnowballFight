@@ -147,7 +147,7 @@ class Database:
         return self.db
 
     
-    async def add_entry(self, dct : dict):
+    def add_entry(self, dct : dict):
         logging.debug("Adding Entry")
         try:
             for key in dct.keys():
@@ -206,10 +206,10 @@ class ItemsDB(Database):
     def __init__(self, handler, file) -> None:
         super().__init__(handler, file)
     
-    async def add_entry(self, type : str, name : str):
-        if not await self.entry_exists({"type": type,"name": name}):
+    def add_entry(self, type : str, name : str):
+        if not self.entry_exists({"type": type,"name": name}):
             try:
-                await super().add_entry({str(self.get_next_id()): {"type": type, "name": name}})
+                super().add_entry({str(self.get_next_id()): {"type": type, "name": name}})
             except Exception as exception:
                 raise exception
             return True
@@ -228,17 +228,17 @@ class ProfilesDB(Database):
             #status effect(DONT KNOW YET)
             #logs [(activity name, timestamp, total cooldown)]
 
-    async def add_entry(self, player_id = 0, guild_id = 0, items = None, points = 0, status = None, logs = None):
+    def add_entry(self, player_id = 0, guild_id = 0, items = None, points = 0, status = None, logs = None):
         dct = {str(self.get_next_id()): {"player_id": player_id, "guild_id": guild_id,
             "items": (list() if items == None else items), "points": points, "status": None,
             "logs": list() if logs == None else logs}}
-        return await super().add_entry(dct)
+        return super().add_entry(dct)
     
     async def create_profile(self, player_id : int, guild_id : int):
         try:
             if await self.similar_entry({"player_id": player_id, "guild_id": guild_id}):
                 return False
-            return await self.add_entry(player_id=player_id, guild_id=guild_id)
+            return self.add_entry(player_id=player_id, guild_id=guild_id)
         except Exception as e:
             raise e
     
