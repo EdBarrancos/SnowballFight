@@ -44,4 +44,21 @@ class ProfileCog(commands.Cog):
     briefMessage = ""
     @commands.command(name=name, aliases=aliases, help=helpMessage, brief=briefMessage)
     async def profile_command(self, ctx):
-        await ctx.send(f'Player Id: {ctx.author.id}\nGuild Id: {ctx.guild.id}')
+        if not await self.profile_db.does_profile_exist(ctx.author.id, ctx.guild.id):
+            try:
+                await self.profile_db.create_profile(ctx.author.id, ctx.guild.id)
+            except Exception as _:
+                await ctx.send("Error while creating profile")
+                return
+        try:
+            profile = await self.profile_db.get_profiles(player_id=ctx.author.id, guild_id=ctx.guild.id)
+            
+            nick = ctx.guild.get_member(profile[0]["player_id"]).nick
+            name = ctx.guild.get_member(profile[0]["player_id"]).name
+            title = nick if nick is not None else name
+            embed = discord.Embed(title=title)
+            embed.add_field(name="Points", value=profile[0]["points"])
+            await ctx.send(embed=embed)
+        except Exception as _:
+            await ctx.send("Error while creating embed")
+            

@@ -10,3 +10,7 @@
 - [ ] [Bot](src/bot.py): Fix Warnings and Errors from Pylint
 - [ ] [ProfileCog](src/cogs/profile_cog.py): Create Custom Exceptions
 - [ ] [ProfileCog](src/cogs/profile_cog.py): Fix Warnings and Errors from Pylint
+- [ ] [ProfileCog](src/cogs/profile_cog.py): Improve embed -> Items, cooldowns
+- [ ] [ProfileCog](src/cogs/profile_cog.py): Debug Logs
+- [ ] [ProfileCog](src/cogs/profile_cog.py): Error Logs
+- [ ] [Database](src/database/database.py): Create Report Database so people can report problems

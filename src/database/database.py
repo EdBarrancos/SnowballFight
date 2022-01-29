@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 
@@ -160,7 +161,7 @@ class Database:
             raise exception
             
     
-    def update_entry(self, id, new_entry):
+    async def update_entry(self, id, new_entry):
         try:
             self.db[id] = new_entry
             self.dumpdb()
@@ -179,7 +180,7 @@ class Database:
             return False
         return False
     
-    def similar_entry(self, entry: dict) -> bool:
+    async def similar_entry(self, entry: dict) -> bool:
         """ You can only enter part of the parameters.
             If there is a entry with the same values in those parameters,
                 returns True
@@ -212,8 +213,7 @@ class ItemsDB(Database):
             except Exception as exception:
                 raise exception
             return True
-        else:
-            return False
+        return False
 
 
 
@@ -234,53 +234,56 @@ class ProfilesDB(Database):
             "logs": list() if logs == None else logs}}
         return super().add_entry(dct)
     
-    def create_profile(self, player_id : int, guild_id : int):
+    async def create_profile(self, player_id : int, guild_id : int):
         try:
-            if self.similar_entry({"player_id": player_id, "guild_id": guild_id}):
+            if await self.similar_entry({"player_id": player_id, "guild_id": guild_id}):
                 return False
             return self.add_entry(player_id=player_id, guild_id=guild_id)
         except Exception as e:
             raise e
     
-    def update_item(self, profile_id: int, item_id: int, item_count = 0):
+    async def update_item(self, profile_id: int, item_id: int, item_count = 0):
         if profile_id is None:
             raise Exception("Invalid Player Id")
         if item_id < 0:
             raise Exception("Invalid Item Id")
         try:
             profile = self.get_instance(str(profile_id))
-            if self.item_exists_in_profile(profile, item_id):
+            if await self.item_exists_in_profile(profile, item_id):
                 for item in profile["items"]:
                     if item[0] == item_id:
                         item[1] += item_count
             else:
                 profile["items"].append([item_id, item_count])
 
-            self.update_entry(str(profile_id), profile)
-            
+            await self.update_entry(str(profile_id), profile)   
         except Exception as exception:
             raise exception
-    
-    def item_exists_in_profile(self, profile, item_id):
+
+    async def item_exists_in_profile(self, profile, item_id):
         for item in profile["items"]:
             if item[0] == item_id:
                 return True
         return False
-    
-    def get_profiles(self, player_id = None, guild_id = None) -> list:
-        try:
-            lst = list()
-            entries = self.get_all_entries()
-            for entry in entries:
-                if player_id is not None:
-                    if entries[entry]["player_id"] == player_id:
-                        lst.append(entries[entry])
-                elif guild_id is not None:
+  
+    async def get_profiles(self, player_id = None, guild_id = None) -> list:
+        lst = list()
+        entries = self.get_all_entries()
+        for entry in entries:
+            if player_id is not None and guild_id is not None:
+                if entries[entry]["player_id"] == player_id:
                     if entries[entry]["guild_id"] == guild_id:
                         lst.append(entries[entry])
-                else:
+            elif player_id is not None:
+                if entries[entry]["player_id"] == player_id:
                     lst.append(entries[entry])
-        except Exception as exception:
-            raise exception
+            elif guild_id is not None:
+                if entries[entry]["guild_id"] == guild_id:
+                    lst.append(entries[entry])
+            else:
+                lst.append(entries[entry])
         return lst
+
+    async def does_profile_exist(self, player_id, guild_id):
+        return len(await self.get_profiles(player_id=player_id, guild_id=guild_id)) != 0
         
