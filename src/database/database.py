@@ -152,7 +152,7 @@ class Database:
 
     def get_collumn(self, entry_parameters : dict) -> list:
         """
-        Returns a List
+        Returns a list with the values of the parameter in each entry
 
         Parameters
         ----------

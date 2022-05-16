@@ -16,3 +16,7 @@
 - [ ] [Database](src/database/database.py): Create Report Database so people can report problems
 - [ ] [ProfileCog](src/cogs/profile_cog.py): Improve path to database selection, it depends on the file that called Profile, need to make that more modular and robust
 - [ ] [Database](src/database/database.py): Complete TODOs
+
+- [ ] [Database](src/database/database.py): Restructure Code. Use MySQL
+- [ ] [Project](src/): Testing System
+- [ ] [Project](src/): Restructure Project
